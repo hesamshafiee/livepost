@@ -7,19 +7,20 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class  PostController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request )
     {
-        $posts = Post::query()->get() ;
+        $pageSize = $request->page_size ?? 20 ;
 
-        return new JsonResponse([
-            'data'=> PostResource::collection($posts)
-        ]) ;
+        $posts = Post::query()->paginate($pageSize) ;
+
+        return PostResource::collection($posts) ;
     }
 
     /**
