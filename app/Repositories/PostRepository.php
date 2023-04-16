@@ -56,8 +56,10 @@ class PostRepository extends BaseRepository
 
             if(!$deleted)
                 throw new \Exception('Failed to delete post');
+
+            return $deleted ;
         });
-        return $deleted ;
+
     }
 
 }

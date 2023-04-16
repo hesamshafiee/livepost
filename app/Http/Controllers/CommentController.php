@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
+use App\Repositories\CommentRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,13 +28,13 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCommentRequest $request)
+    public function store(StoreCommentRequest $request, CommentRepository $repository)
     {
-        $created = Comment::query()->create([
-            'body' => $request->body,
-            'user_id' => 2,
-            'post_id' => 3,
-        ]);
+        $created = $repository->create($request->only([
+            'body',
+            'user_id',
+            'post_id',
+        ])) ;
 
         return new CommentResource($created);
     }
@@ -49,17 +50,13 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCommentRequest $request, Comment $comment)
+    public function update(UpdateCommentRequest $request, Comment $comment, CommentRepository $repository)
     {
-        $updated = $comment->update([
-            'body' => $request->body ?? $comment->body,
-        ]);
-
-        if(!$updated){
-            return new JsonResponse([
-                'error' => 'Failed to update resource.'
-            ]);
-        }
+        $comment = $repository->update($comment, $request->only([
+            'body',
+            'user_id',
+            'post_id',
+        ]));
 
         return new CommentResource($comment);
     }
@@ -67,15 +64,10 @@ class CommentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Comment $comment)
+    public function destroy(Comment $comment, CommentRepository $repository)
     {
-        $deleted = $comment->forceDelete();
+        $post = $repository->forceDelete($comment) ;
 
-        if(!$deleted){
-            return new JsonResponse([
-                'error' => 'Failed to delete resource.'
-            ]);
-        }
         return new JsonResponse([
             'data' => 'success',
         ]);
