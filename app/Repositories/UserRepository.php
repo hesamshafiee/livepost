@@ -2,9 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Events\Models\User\UserCreated;
+use App\Events\Models\User\UserUpdated;
+use App\Events\UserDeleted;
 use App\Exceptions\GeneralJsonException;
 use App\Models\User;
-use App\Repositories\BaseRepository;
 use Illuminate\Support\Facades\DB;
 
 class UserRepository extends BaseRepository
@@ -23,6 +25,8 @@ class UserRepository extends BaseRepository
             ]);
 
             throw_if(!$created, GeneralJsonException::class,'Failed to create User.');
+
+            event(new UserCreated($created)) ;
 
             return $created;
         });
@@ -44,6 +48,8 @@ class UserRepository extends BaseRepository
 
             throw_if(!$updated, GeneralJsonException::class,'Failed to update user');
 
+            event(new UserUpdated($updated)) ;
+
             return $user ;
         });
     }
@@ -58,6 +64,8 @@ class UserRepository extends BaseRepository
             $deleted = $user->forceDelete() ;
 
             throw_if(!$deleted, GeneralJsonException::class,'Failed to delete User');
+
+            event(new UserDeleted($deleted)) ;
 
             return $deleted ;
         });
