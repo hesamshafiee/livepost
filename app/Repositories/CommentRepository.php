@@ -20,6 +20,8 @@ class CommentRepository extends BaseRepository
                 'user_id' => data_get($attributes, 'user_id'),
                 'post_id' => data_get($attributes, 'post_id'),
             ]);
+
+
             return $created;
         });
     }
